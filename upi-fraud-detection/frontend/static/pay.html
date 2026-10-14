@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>UPI Shield Pay v2</title>
+<style>
+:root{--bg:#f1f4f9;--card:#fff;--ink:#16202c;--mut:#667587;--line:#e2e7ef;--brand:#1b4fd8;--tint:#e8efff;--low:#13795b;--med:#b7791f;--high:#c0392b}
+@media(prefers-color-scheme:dark){:root{--bg:#0e131a;--card:#171f2a;--ink:#e8edf3;--mut:#93a1b3;--line:#273242;--brand:#7da0ff;--tint:#22304d;--low:#4fd1a5;--med:#f0b44c;--high:#ff7b6b}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.4 system-ui,sans-serif}
+.app{max-width:430px;margin:0 auto;min-height:100vh;padding-bottom:78px}
+.top{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;background:var(--card);position:sticky;top:0;z-index:5}
+.logo{display:flex;gap:10px;align-items:center}.lg{width:38px;height:38px;border-radius:10px;background:linear-gradient(135deg,#1746c7,#2a8bf2);color:#fff;display:grid;place-items:center;font-size:20px}
+.bal{font-weight:600}.bal small{display:block;color:var(--brand);font-size:.78rem;font-weight:500;cursor:pointer}
+.av{width:38px;height:38px;border-radius:50%;background:var(--tint);color:var(--brand);display:grid;place-items:center;cursor:pointer}
+.pad{padding:14px 16px}.mut{color:var(--mut);font-size:.85rem}
+.ban{display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;padding:16px;margin:0 -0px;scrollbar-width:none}.ban::-webkit-scrollbar{display:none}
+.bn{flex:0 0 82%;scroll-snap-align:start;border-radius:14px;padding:20px 18px;color:#fff;min-height:104px;font-weight:700;font-size:1.1rem;line-height:1.25}.bn small{display:block;font-weight:400;font-size:.8rem;margin-top:6px;opacity:.9}
+h2{font-size:1rem;margin:4px 0 10px;display:flex;justify-content:space-between;align-items:baseline}h2 a{font-size:.82rem;color:var(--brand);font-weight:500;cursor:pointer}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px 4px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 6px;margin-bottom:20px}
+.tile{background:none;border:0;color:var(--ink);font:inherit;font-size:.74rem;text-align:center;cursor:pointer;padding:0;position:relative}
+.ic{width:50px;height:50px;border-radius:50%;background:var(--tint);display:grid;place-items:center;margin:0 auto 6px;color:var(--brand);font-weight:700;font-size:.8rem}
+.i{width:25px;height:25px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.offer{position:absolute;top:-8px;left:50%;transform:translateX(-10%);background:#f26a21;color:#fff;font-size:.6rem;font-weight:700;padding:2px 7px;border-radius:9px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:14px}
+input{width:100%;padding:11px;margin:4px 0 10px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink);font:inherit}
+.btn{width:100%;padding:12px;border:0;border-radius:10px;background:var(--brand);color:#fff;font:inherit;font-weight:600;cursor:pointer}
+.link{background:none;border:0;color:var(--brand);font:inherit;cursor:pointer;padding:6px 0}
+.row{display:flex;justify-content:space-between;gap:8px;padding:10px 0;border-top:1px solid var(--line)}.row:first-child{border:0}
+.Low{color:var(--low)}.Medium{color:var(--med)}.High{color:var(--high)}.tag{font-weight:700;font-size:.8rem}
+.prev{max-width:100%;max-height:260px;border-radius:10px;margin:10px auto 0;display:block;border:1px solid var(--line)}
+.bar{height:6px;background:var(--line);border-radius:3px;overflow:hidden;margin-top:8px}.bar i{display:block;height:100%;width:0;background:var(--brand);transition:width .2s}
+.flag{padding:8px 10px;border-radius:10px;margin:6px 0;background:var(--tint);font-size:.88rem}.flag.bad{border-left:4px solid var(--high)}.flag.warn{border-left:4px solid var(--med)}.flag.ok{border-left:4px solid var(--low)}.lbl{font-size:.78rem;color:var(--mut);margin-top:4px}
+.nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;display:flex;background:var(--card);border-top:1px solid var(--line)}
+.nav button{flex:1;background:none;border:0;padding:8px 0 10px;color:var(--mut);font:inherit;font-size:.7rem;cursor:pointer}.nav .i{display:block;margin:0 auto 2px;width:23px;height:23px}.nav button.on{color:var(--brand);font-weight:600}
+.nav button:nth-child(2) .i{stroke-width:3}.grid{align-items:start}button:focus-visible,input:focus-visible{outline:2px solid var(--brand);outline-offset:2px}.apps{display:grid;grid-template-columns:1fr 1fr;gap:10px}.ua{display:flex;align-items:center;gap:8px;padding:10px;font-size:.85rem!important;border:1px solid var(--line);border-radius:12px;background:var(--card);color:var(--ink);font:inherit;font-weight:600;cursor:pointer}
+.ua span{width:34px;height:34px;border-radius:50%;color:#fff;display:grid;place-items:center;font-size:.8rem;font-weight:700}.big{font-size:2rem;font-weight:800;line-height:1.1}
+.hide{display:none!important}
+</style><link rel="apple-touch-icon" href="/apple-touch-icon.png"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="theme-color" content="#1746c7"></head><body><svg width="0" height="0" style="position:absolute" aria-hidden="true"><symbol id="i-scan" viewBox="0 0 24 24"><path d="M4 8V5a1 1 0 0 1 1-1h3M16 4h3a1 1 0 0 1 1 1v3M20 16v3a1 1 0 0 1-1 1h-3M8 20H5a1 1 0 0 1-1-1v-3M8 9h8M8 12h8M8 15h5"/></symbol><symbol id="i-bank" viewBox="0 0 24 24"><path d="M3 10l9-6 9 6M5 10v8M9 10v8M15 10v8M19 10v8M3 20h18"/></symbol><symbol id="i-check" viewBox="0 0 24 24"><path d="M12 3l7 3v5c0 5-3 8-7 10-4-2-7-5-7-10V6zM9 12l2 2 4-4"/></symbol><symbol id="i-flag" viewBox="0 0 24 24"><path d="M5 21V4M5 4h11l-2 4 2 4H5"/></symbol><symbol id="i-hist" viewBox="0 0 24 24"><path d="M12 7v5l3 2M3 12a9 9 0 1 0 3-6.7M3 4v4h4"/></symbol><symbol id="i-phone" viewBox="0 0 24 24"><path d="M8 3h8a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H8a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1zM11 18h2"/></symbol><symbol id="i-dth" viewBox="0 0 24 24"><path d="M5 19l5-5M7 10a7 7 0 0 1 7 7M7 5a12 12 0 0 1 12 12"/></symbol><symbol id="i-bulb" viewBox="0 0 24 24"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-4 10.5c.7.7 1 1.5 1 2.5h6c0-1 .3-1.8 1-2.5A6 6 0 0 0 12 3z"/></symbol><symbol id="i-card" viewBox="0 0 24 24"><path d="M4 6h16a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1zM3 10h18M7 15h4"/></symbol><symbol id="i-emi" viewBox="0 0 24 24"><path d="M12 4a8 8 0 1 0 .01 0M9 8h6M9 11h6M10 8c3.5 0 3.5 4 0 4l4 4"/></symbol><symbol id="i-umb" viewBox="0 0 24 24"><path d="M3 12a9 9 0 0 1 18 0zM12 12v6a2 2 0 0 0 4 0"/></symbol><symbol id="i-play" viewBox="0 0 24 24"><path d="M8 5l11 7-11 7z"/></symbol><symbol id="i-home" viewBox="0 0 24 24"><path d="M3 11l9-8 9 8v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></symbol><symbol id="i-grid" viewBox="0 0 24 24"><path d="M5 5h.01M12 5h.01M19 5h.01M5 12h.01M12 12h.01M19 12h.01M5 19h.01M12 19h.01M19 19h.01"/></symbol><symbol id="i-offer" viewBox="0 0 24 24"><path d="M20 12l-8 8-9-9V4h7zM8 8h.01"/></symbol><symbol id="i-user" viewBox="0 0 24 24"><path d="M12 4a4 4 0 1 0 .01 0M4 21c0-4 3.6-7 8-7s8 3 8 7"/></symbol></svg>
+<div id="auth" class="pad"><div class="card" style="margin-top:40px"><h2>UPI Shield Pay</h2>
+ <input id="uid" placeholder="UPI ID (e.g. alice@upi)" autocomplete="username"><input id="pw" type="password" placeholder="Password (min 6 characters)" autocomplete="current-password"><input id="nm" placeholder="Your name (new accounts only)">
+ <button class="btn" onclick="auth('login')">Log in</button> <button class="link" onclick="auth('register')">Create account</button>
+ <p class="mut">Demo: alice@upi, bob@upi, shop@upi (password demo123). Virtual money only.</p><p id="aerr" class="High"></p></div></div>
+<div id="main" class="hide"><div class="app">
+ <div class="top"><div class="logo"><div class="lg">🛡</div><div class="bal"><span id="bal"></span><small onclick="$('#who').classList.toggle('hide')">View Details ▾</small><div id="who" class="mut hide"></div></div></div>
+  <button id="inst" class="link hide" style="margin-right:8px" onclick="installApp()">⬇ Install app</button><div class="av" id="av" onclick="logout()" title="Log out" role="button" aria-label="Log out"><svg class="i"><use href="#i-user"/></svg></div></div>
+
+ <section id="v-home"><div class="ban"><div class="bn" style="background:linear-gradient(120deg,#1746c7,#2a8bf2)">Every payment is checked for fraud<small>Risky payees are flagged before you pay</small></div>
+  <div class="bn" style="background:linear-gradient(120deg,#6a3fc9,#9b5de5)" onclick="show('scan')">Got a payment screenshot?<small>Scan it for scams →</small></div></div>
+  <div class="pad" style="padding-top:0"><h2>Quick pay</h2><div class="grid" id="g-quick"></div><h2>Recent</h2><div class="card" id="recent"></div></div></section>
+
+ <section id="v-services"><div class="ban"><div class="bn" style="background:linear-gradient(120deg,#1746c7,#2a8bf2)">Earn 1% SuperCash with Blue Card<small>Demo offer</small></div><div class="bn" style="background:linear-gradient(120deg,#6a3fc9,#9b5de5)">Savings Cards<small>Demo offer</small></div></div>
+  <div class="pad" style="padding-top:0"><h2>Transfer Money <a onclick="show('safety')">Check Payee Risk</a></h2><div class="grid" id="g-transfer"></div>
+  <h2>Recharge &amp; Pay Bills <a onclick="show('pay')">Pay any UPI ID</a></h2><div class="grid" id="g-bills"></div></div></section>
+
+ <section id="v-pay" class="pad hide">
+  <h2><span id="payfor">Send money</span></h2><div class="card">
+   <input id="to" placeholder="Payee UPI ID" onblur="check('to','payee')">
+   <div id="payee" class="mut" style="margin-bottom:8px"></div>
+   <input id="amt" type="number" min="1" placeholder="Amount (₹)">
+   <input id="pin" type="password" class="hide" placeholder="Enter PIN (your password) to confirm">
+   <button class="btn" onclick="assess()">Check risk &amp; continue</button><div id="res" style="margin-top:12px"></div></div>
+  <div id="apps" class="card hide"><b>Pay with</b><div class="mut" id="appnote" style="margin:4px 0 10px"></div>
+   <div class="apps">
+    <button class="ua" onclick="openApp('gpay')"><span style="background:#4285f4">G</span>Google Pay</button>
+    <button class="ua" onclick="openApp('phonepe')"><span style="background:#5f259f">Pe</span>PhonePe</button>
+    <button class="ua" onclick="openApp('paytm')"><span style="background:#00baf2">Pt</span>Paytm</button>
+    <button class="ua" onclick="openApp('any')"><span style="background:#667587">⋯</span>Other UPI app</button></div>
+   <button class="link" onclick="pay()">Or pay from the demo wallet instead</button></div>
+ </section><section id="v-history" class="pad hide"><h2>History</h2><div class="card" id="hist"></div></section><section id="v-safety" class="pad hide">
+  <h2>Check or report a number <a onclick="show('scan')">🧾 Scan screenshot</a></h2><div class="card">
+   <input id="cn" placeholder="UPI ID to check">
+   <button class="btn" onclick="check('cn','cres')">Check risk</button>
+   <div id="cres" style="margin:10px 0"></div>
+   <button class="link" onclick="rep('cn','cres')">Report this number as fraud</button></div>
+ </section><section id="v-scan" class="pad hide">
+  <h2>Scan payment screenshot</h2>
+  <div class="card">
+   <p class="mut" style="margin-top:0">Upload a screenshot from GPay, PhonePe, Paytm or any UPI app. The text is read on your device and the image is never uploaded.</p>
+   <label class="btn" style="display:block;text-align:center;cursor:pointer">🧾 Choose screenshot<input id="shot" type="file" accept="image/*" class="hide" onchange="scanShot(this)"></label>
+   <img id="prev" class="prev hide" alt="Selected screenshot">
+   <div id="ocrmsg" class="mut" style="margin-top:8px"></div><div class="bar hide" id="ocrbar"><i id="ocrfill"></i></div>
+  </div>
+  <div id="scanres" class="hide">
+   <div class="card"><b>Details found</b> <span class="mut">(fix anything that looks wrong)</span>
+    <div class="lbl">Amount (₹)</div><input id="f-amt" inputmode="decimal">
+    <div class="lbl">Payee UPI ID</div><input id="f-upi">
+    <div class="lbl">Transaction / UPI reference</div><input id="f-ref">
+    <div class="lbl">Date &amp; time</div><input id="f-date">
+    <div class="lbl">Status shown</div><input id="f-status">
+    <button class="btn" onclick="verdict()">Check for fraud</button></div>
+   <div class="card hide" id="verd"></div>
+   <button class="link" onclick="usePay()">Pay this payee now →</button>
+   <details class="mut"><summary>Raw text read from the image</summary><pre id="rawtxt" style="white-space:pre-wrap;font-size:.75rem"></pre></details>
+  </div>
+ </section>
+ <section id="v-offers" class="pad hide"><h2>Offers</h2><div class="card"><b>₹20 off on your first bill payment</b><div class="mut">Pay any bill from All Services. Demo offer.</div></div>
+  <div class="card"><b>Stay safe, stay rewarded</b><div class="mut">Never share your PIN, and never pay to claim a "prize". Scan any payment screenshot before releasing goods.</div></div>
+  <div class="card"><b>Report a scam, protect others</b><div class="mut">Numbers reported by several people are blocked automatically.</div><button class="link" onclick="show('safety')">Report a number →</button></div></section>
+
+ <nav class="nav"><button data-v="home" onclick="show('home')"><svg class="i"><use href="#i-home"/></svg>Home</button><button data-v="services" onclick="show('services')"><svg class="i"><use href="#i-grid"/></svg>All Services</button><button data-v="safety" onclick="show('safety')"><svg class="i"><use href="#i-check"/></svg>Safety</button><button data-v="history" onclick="show('history')"><svg class="i"><use href="#i-hist"/></svg>History</button><button data-v="offers" onclick="show('offers')"><svg class="i"><use href="#i-offer"/></svg>Offers</button></nav>
+</div></div>
+<script src="/ocr/tesseract.min.js"></script>
+<script>
+const $=s=>document.querySelector(s);let T=localStorage.getItem('t'),ME='';
+const inr=n=>'₹'+Number(n).toLocaleString('en-IN',{maximumFractionDigits:2});
+async function api(p,body){const r=await fetch(p,{method:body?'POST':'GET',headers:{'Content-Type':'application/json',Authorization:'Bearer '+T},body:body?JSON.stringify(body):undefined});
+ const d=await r.json();if(!r.ok)throw new Error(d.detail||'Request failed');return d}
+function show(v){['home','services','pay','history','safety','scan','offers'].forEach(x=>$('#v-'+x).classList.toggle('hide',x!==v));
+ document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('on',b.dataset.v===v));if(v==='history'||v==='home')hist();window.scrollTo(0,0)}
+function quick(u){$('#payfor').textContent='Send money';$('#to').value=u;$('#res').innerHTML='';show('pay');check('to','payee')}
+async function auth(k){try{const d=await api('/api/auth/'+k,{upi_id:$('#uid').value,password:$('#pw').value,name:$('#nm').value||$('#uid').value});
+ T=d.token;localStorage.setItem('t',T);start()}catch(e){$('#aerr').textContent=e.message}}
+function logout(){localStorage.removeItem('t');location.reload()}
+async function start(){try{const m=await api('/api/me');ME=m.upi_id;$('#auth').classList.add('hide');$('#main').classList.remove('hide');
+ $('#bal').textContent='Balance: '+inr(m.balance);$('#who').textContent=m.name+' · '+m.upi_id;show('services')}catch{$('#auth').classList.remove('hide')}}
+async function check(inp,out){const v=$('#'+inp).value.trim();if(!v)return;try{const p=await api('/api/payee/check?upi_id='+encodeURIComponent(v));
+ $('#'+out).innerHTML=!p.exists?'<span class="mut">External UPI ID: it will be checked by amount, time and first-time payment.</span>':
+ `${p.name}: <b class="${p.risk_level}">${p.risk_level} risk</b>${p.reasons.length?'<br>'+p.reasons.join('<br>'):''}`}catch(e){$('#'+out).textContent=e.message}}
+async function pay(){try{const r=await api('/api/pay',{to:$('#to').value,amount:+$('#amt').value,password:$('#pin').value||null});
+ $('#pin').classList.toggle('hide',r.status!=='confirm_required');if(r.status!=='confirm_required')$('#pin').value='';
+ $('#res').innerHTML=`<b class="${r.risk_level}">${r.risk_level} risk (${r.risk_score}/100)</b>. ${r.message}`+(r.reasons.length?'<ul>'+r.reasons.map(x=>'<li>'+x+'</li>').join('')+'</ul>':'');
+ if(r.status==='blocked')$('#res').innerHTML+=`<button class="link" onclick="rep('to','res')">Report this number</button>`;
+ const m=await api('/api/me');$('#bal').textContent='Balance: '+inr(m.balance)}catch(e){$('#res').innerHTML='<span class="High">'+e.message+'</span>'}}
+async function rep(inp,out){try{await api('/api/report',{upi_id:$('#'+inp).value,reason:'Reported by user'});$('#'+out).innerHTML+='<p>Reported. Thank you.</p>'}catch(e){$('#'+out).textContent=e.message}}
+function rows(h){return h.length?h.map(t=>`<div class="row"><div>${t.sender===ME?'To '+t.receiver:'From '+t.sender}<div class="mut">${new Date(t.ts*1000).toLocaleString()} · ${t.status}</div></div>
+ <div style="text-align:right">${inr(t.amount)}<div class="tag ${t.level}">${t.level} risk</div></div></div>`).join(''):'<p class="mut">No payments yet. Tap Pay UPI ID to send your first one.</p>'}
+async function hist(){const h=await api('/api/history');$('#hist').innerHTML=rows(h);$('#recent').innerHTML=rows(h.slice(0,3))}
+
+
+// ---- Screenshot scanner (OCR runs in the browser) ----
+let ocrW=null;
+async function getOcr(){if(ocrW)return ocrW;
+ ocrW=await Tesseract.createWorker('eng',1,{workerPath:'/ocr/worker.min.js',corePath:'/ocr/tesseract-core-simd-lstm.wasm.js',langPath:'/ocr/',gzip:true,
+  logger:m=>{if(m.status==='recognizing text'){$('#ocrfill').style.width=Math.round(m.progress*100)+'%'}}});
+ await ocrW.setParameters({tessedit_pageseg_mode:'11',preserve_interword_spaces:'1'});return ocrW}
+function parseShot(raw){const t=raw.replace(/[ \t]*@[ \t]*/g,'@');const o={amt:'',upi:'',ref:'',date:'',status:''};
+ const ups=[...t.matchAll(/[a-z0-9][a-z0-9._\-]{1,}@[a-z][a-z0-9.\-]{1,}/gi)].map(m=>m[0].toLowerCase().replace(/[.\-]+$/,''));
+ o.upi=ups.find(u=>u!==ME)||ups[0]||'';
+ let m=t.match(/(?:₹|Rs\.?|INR|[%¥Z€])\s?([\d,]{1,9}(?:\.\d{1,2})?)\b/);
+ if(!m)m=t.match(/(?:paid|sent|received|amount|debited|credited)[^\d\n]{0,25}([\d,]{1,9}(?:\.\d{1,2})?)/i);
+ if(!m)m=t.match(/^[ \t]*[₹%¥Z]?[ \t]*(\d{1,3}(?:,\d{2,3})+(?:\.\d{1,2})?|\d{1,7}(?:\.\d{1,2})?)[ \t]*$/m);
+ if(m)o.amt=m[1].replace(/,/g,'');
+ m=t.match(/(?:UPI\s*(?:Ref(?:erence)?|Transaction)?\s*(?:ID|No\.?|Number)?|UTR|Ref(?:erence)?\.?\s*(?:ID|No\.?|Number)?|Txn\s*ID|Transaction\s*ID)\s*[:#\-]?\s*([A-Z0-9]{6,})/i)||t.match(/\b(\d{12})\b/);
+ if(m)o.ref=m[1];
+ m=t.match(/\b\d{1,2}\s*(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\.?,?\s*\d{2,4}(?:[,\s]+\d{1,2}:\d{2}(?::\d{2})?\s?(?:[ap]\.?m\.?)?)?/i)||t.match(/\b\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4}(?:[,\s]+\d{1,2}:\d{2}(?::\d{2})?\s?(?:[ap]m)?)?/i);
+ if(m)o.date=m[0].trim();
+ m=t.match(/\b(failed|failure|declined|pending|processing|cancelled|reversed)\b/i)||t.match(/\b(success(?:ful(?:ly)?)?|completed)\b/i);
+ if(m)o.status=m[1].toLowerCase();
+ return o}
+async function scanShot(inp){const f=inp.files[0];if(!f)return;
+ $('#prev').src=URL.createObjectURL(f);$('#prev').classList.remove('hide');$('#scanres').classList.add('hide');$('#verd').classList.add('hide');
+ $('#ocrbar').classList.remove('hide');$('#ocrfill').style.width='0';$('#ocrmsg').textContent='Reading screenshot… the first scan loads the reader (about 7 MB).';
+ try{const w=await getOcr();const r=await w.recognize(f);const raw=r.data.text||'';
+  $('#rawtxt').textContent=raw.trim()||'(nothing readable)';const o=parseShot(raw);
+  $('#f-amt').value=o.amt;$('#f-upi').value=o.upi;$('#f-ref').value=o.ref;$('#f-date').value=o.date;$('#f-status').value=o.status;
+  const n=Object.values(o).filter(Boolean).length;
+  $('#ocrmsg').textContent=n?`Read ${n} of 5 details.`:'Could not read any payment details. Try a clearer, uncropped screenshot.';
+  $('#ocrbar').classList.add('hide');$('#scanres').classList.remove('hide');if(n>=2)verdict()}
+ catch(e){$('#ocrmsg').textContent='Could not read the image: '+e.message;$('#ocrbar').classList.add('hide')}
+ inp.value=''}
+async function verdict(){const upi=$('#f-upi').value.trim().toLowerCase(),amt=+$('#f-amt').value,ref=$('#f-ref').value.trim(),st=$('#f-status').value.trim().toLowerCase();
+ const F=[];let lvl='Low';const bump=l=>{if(l==='High'||(l==='Medium'&&lvl==='Low'))lvl=l};
+ if(!upi){F.push(['warn','No UPI ID found. Check the payee name and ID yourself.']);bump('Medium')}
+ else{try{const p=await api('/api/payee/check?upi_id='+encodeURIComponent(upi));
+   if(!p.exists){F.push(['warn',`${upi} is not registered in this app's network, so it cannot be verified here.`]);bump('Medium')}
+   else if(p.risk_level==='High'){F.push(['bad',`${p.name} (${upi}) is high risk: ${p.reasons.join('; ')||'reported by users'}.`]);bump('High')}
+   else if(p.risk_level==='Medium'){F.push(['warn',`${p.name} (${upi}) is medium risk: ${p.reasons.join('; ')}.`]);bump('Medium')}
+   else F.push(['ok',`${p.name} (${upi}) has no fraud reports.`])}catch(e){F.push(['warn','Payee check failed: '+e.message])}}
+ if(/fail|declin|pending|process|cancel|revers/.test(st)){F.push(['bad',`The screenshot says "${st}". Do not release goods or services until the money is confirmed in your bank app.`]);bump('High')}
+ else if(!st){F.push(['warn','No payment status found in the screenshot.']);bump('Medium')}
+ else F.push(['ok',`Status shown: ${st}.`]);
+ if(!ref){F.push(['warn','No transaction reference found. Genuine UPI receipts always show one.']);bump('Medium')}
+ else if(!/^\d{12}$/.test(ref)){F.push(['warn',`Reference "${ref}" is not a 12-digit UPI reference. Edited screenshots often get this wrong (or the text was misread).`]);bump('Medium')}
+ if(!amt)F.push(['warn','No amount found.']);else if(amt>2000){F.push(['warn',`High amount (${inr(amt)}). Double-check before acting.`]);bump('Medium')}
+ const el=$('#verd');el.classList.remove('hide');
+ el.innerHTML=`<b class="${lvl}" style="font-size:1.05rem">${lvl} risk</b>`+F.map(f=>`<div class="flag ${f[0]}">${f[1]}</div>`).join('')+
+  `<div class="mut" style="margin-top:8px">A screenshot can be edited or faked. Always confirm the credit in your own bank or UPI app, never rely on the screenshot alone.</div>`}
+function usePay(){const u=$('#f-upi').value.trim();if(u)$('#to').value=u;if($('#f-amt').value)$('#amt').value=$('#f-amt').value;$('#res').innerHTML='';show('pay');if(u)check('to','payee')}
+const I=k=>`<svg class="i"><use href="#i-${k}"/></svg>`;
+function tiles(el,list){$(el).innerHTML=list.map(([ic,l,a,o])=>`<button class="tile" onclick="${a}">${o?'<span class="offer">OFFER</span>':''}<div class="ic">${ic.startsWith('+')?ic:I(ic)}</div>${l}</button>`).join('')}
+function biller(n,u){quick(u);$('#payfor').textContent='Pay '+n}
+tiles('#g-transfer',[['scan','Scan Payment Screenshot',"show('scan')"],['bank','Pay UPI ID',"show('pay')"],['check','Check Payee',"show('safety')"],['flag','Report Fraud',"show('safety')"]]);
+tiles('#g-bills',[['phone','Mobile',"biller('Mobile Recharge','mobile@bills')"],['dth','DTH',"biller('DTH Recharge','dth@bills')"],['bulb','Electricity',"biller('Electricity Board','electricity@bills')",1],['card','Credit Card',"biller('Credit Card Bill','creditcard@bills')"],
+ ['emi','EMI Payments',"biller('EMI Payments','emi@bills')"],['umb','Insurance Premium',"biller('Insurance Premium','insurance@bills')"],['play','Google Play Recharge',"biller('Google Play','googleplay@bills')"],['+16','More',"show('pay')"]]);
+tiles('#g-quick',[['+B','Bob',"quick('bob@upi')"],['+FM','Fresh Mart',"quick('shop@upi')"],['+🎁','Prize offer',"quick('lucky.prize@upi')"],['+New','New',"show('pay')"]]);
+
+// ---- Risk check, then hand over to GPay / PhonePe / Paytm ----
+let last=null;
+async function assess(){$('#apps').classList.add('hide');$('#res').innerHTML='Checking…';
+ try{const to=$('#to').value.trim().toLowerCase(),amount=+$('#amt').value;const r=await api('/api/risk/assess',{to,amount});last={to,amount,name:r.payee_name};
+  $('#res').innerHTML=`<div class="big ${r.risk_level}">${Math.round(r.risk_score)}%</div><b class="${r.risk_level}">${r.risk_level} risk</b>`+
+   (r.known?`<div class="mut">Payee: ${r.payee_name}</div>`:'<div class="mut">Payee is outside this app; judged by amount, time and first-time payment.</div>')+
+   (r.reasons.length?'<ul>'+r.reasons.map(x=>'<li>'+x+'</li>').join('')+'</ul>':'<p class="Low">No warning signs found.</p>')+
+   `<button class="link" onclick="rep('to','res')">Report this number</button>`;
+  const hi=r.risk_level==='High';$('#appnote').innerHTML=hi?'<b class="High">High risk. Paying is not recommended.</b> <button class="link" onclick="$(\'#appbtns\')&&0;this.parentNode.nextElementSibling.classList.remove(\'hide\');this.remove()">Show apps anyway</button>':
+   (r.risk_level==='Medium'?'Medium risk. Double-check the name in your UPI app before you pay.':'Looks safe. Choose an app. The payee and amount are filled in for you.');
+  $('#apps').querySelector('.apps').classList.toggle('hide',hi);$('#apps').classList.remove('hide')}
+ catch(e){$('#res').innerHTML='<span class="High">'+e.message+'</span>'}}
+function openApp(k){if(!last)return;const q=`pa=${encodeURIComponent(last.to)}&pn=${encodeURIComponent(last.name||last.to)}&am=${last.amount.toFixed(2)}&cu=INR&tn=${encodeURIComponent('Payment')}`;
+ const A=/Android/i.test(navigator.userAgent),I=/iPhone|iPad|iPod/i.test(navigator.userAgent);
+ if(!A&&!I){$('#appnote').innerHTML='<b class="Medium">UPI apps open only on a phone.</b> Open this page on your Android or iPhone and try again.';return}
+ const pk={gpay:'com.google.android.apps.nbu.paisa.user',phonepe:'com.phonepe.app',paytm:'net.one97.paytm'};
+ const ios={gpay:'gpay://upi/pay?',phonepe:'phonepe://pay?',paytm:'paytmmp://pay?',any:'upi://pay?'};
+ location.href=A?(k==='any'?`upi://pay?${q}`:`intent://pay?${q}#Intent;scheme=upi;package=${pk[k]};end`):ios[k]+q}
+let dp=null;addEventListener('beforeinstallprompt',e=>{e.preventDefault();dp=e;$('#inst').classList.remove('hide')});
+async function installApp(){if(!dp)return;dp.prompt();await dp.userChoice;dp=null;$('#inst').classList.add('hide')}
+addEventListener('appinstalled',()=>$('#inst').classList.add('hide'));
+if(T)start();
+</script></body></html>

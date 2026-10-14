@@ -1,0 +1,8 @@
+feature,impurity_importance,permutation_importance
+trans_amount,0.5552,0.3126
+trans_hour,0.224,0.0932
+category,0.0962,0.0711
+age,0.0474,0.0082
+state,0.0317,0.0026
+trans_month,0.0181,0.0012
+trans_day,0.0275,-0.0008

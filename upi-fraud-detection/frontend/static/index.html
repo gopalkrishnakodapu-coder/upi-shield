@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>UPI Shield — Fraud Detection</title>
+<link rel="stylesheet" href="/style.css">
+<link rel="manifest" href="/manifest.json"><link rel="icon" href="/icon.svg"><meta name="theme-color" content="#0b1220"><script>if("serviceWorker" in navigator)navigator.serviceWorker.register("/sw.js")</script></head>
+<body>
+<header class="topbar">
+  <div class="brand"><span class="shield">🛡</span><div><b>UPI Shield</b><small>ML Fraud Detection Platform</small></div></div>
+  <div class="actions">
+    <a href="/pay.html" class="status" style="text-decoration:none;color:#fff">Open UPI app</a><span id="apiStatus" class="status">Connecting…</span>
+    <button class="iconbtn" id="scanBtn" title="Scan payment screenshot" aria-label="Scan payment screenshot" aria-haspopup="dialog">
+      <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8V5a1 1 0 0 1 1-1h3M16 4h3a1 1 0 0 1 1 1v3M20 16v3a1 1 0 0 1-1 1h-3M8 20H5a1 1 0 0 1-1-1v-3"/><path d="M4 12h16"/></svg>
+    </button>
+    <button class="iconbtn" id="adminBtn" title="Admin profile" aria-label="Admin profile details" aria-haspopup="dialog">
+      <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+    </button>
+  </div>
+</header>
+
+<div id="scanModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="scanTitle">
+  <div class="sheet">
+    <div class="sheet-head"><h2 id="scanTitle">Payment screenshot scanner</h2><button class="x" data-close aria-label="Close">✕</button></div>
+    <p class="muted">Upload a GPay, PhonePe, Paytm or any UPI payment screenshot. The text is read in your browser and the image is not uploaded.</p>
+    <label class="primary pick">Choose screenshot<input id="shotFile" type="file" accept="image/*" hidden></label>
+    <div id="scanProg" class="muted"></div><div id="scanBar" class="bar hidden"><i></i></div>
+    <div id="scanOut" class="hidden">
+      <div class="fields">
+        <label>Amount (₹)<input id="sf-amt" inputmode="decimal"></label>
+        <label>Payee UPI ID<input id="sf-upi"></label>
+        <label>Transaction / UPI reference<input id="sf-ref"></label>
+        <label>Date &amp; time<input id="sf-date"></label>
+        <label>Status shown<input id="sf-status"></label>
+      </div>
+      <button class="primary" id="scanCheck" type="button">Check for fraud</button>
+      <div id="scanVerdict" class="verdict hidden"></div>
+      <details class="muted"><summary>Raw text read from the image</summary><pre id="scanRaw"></pre></details>
+    </div>
+  </div>
+</div>
+
+<div id="adminModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="adminTitle">
+  <div class="sheet narrow">
+    <div class="sheet-head"><h2 id="adminTitle">Admin profile</h2><button class="x" data-close aria-label="Close">✕</button></div>
+    <div id="adminBody"><p class="muted">Loading…</p></div>
+  </div>
+</div>
+
+<main>
+<section class="hero">
+  <div>
+    <p class="eyebrow">CAPSTONE PROJECT</p>
+    <h1>Detect suspicious UPI transactions before they become losses.</h1>
+    <p class="sub">A machine-learning platform using Random Forest and Logistic Regression to estimate transaction fraud risk.</p>
+  </div>
+</section>
+
+<section class="cards" id="stats"></section>
+
+<nav class="tabs">
+  <button class="tab active" data-tab="dashboard">Dashboard</button>
+  <button class="tab" data-tab="predict">Risk Assessment</button>
+  <button class="tab" data-tab="models">Model Performance</button>
+  <button class="tab" data-tab="data">Transactions</button>
+</nav>
+
+<section id="dashboard" class="panel active">
+  <div class="section-head"><div><h2>Transaction intelligence</h2><p>Explore the dataset and fraud-risk patterns.</p></div></div>
+  <div class="grid2">
+    <div class="chartbox"><h3>Fraud-risk by transaction amount</h3><img src="/reports/figures/03_fraud_by_amount_band.png"></div>
+    <div class="chartbox"><h3>Fraud-risk by hour</h3><img src="/reports/figures/04_fraud_by_hour.png"></div>
+    <div class="chartbox"><h3>Time × amount heatmap</h3><img src="/reports/figures/07_hour_amount_heatmap.png"></div>
+    <div class="chartbox"><h3>Feature importance</h3><img src="/reports/figures/12_feature_importance.png"></div>
+  </div>
+</section>
+
+<section id="predict" class="panel">
+  <div class="section-head"><div><h2>Live risk assessment</h2><p>Enter transaction attributes and call the backend ML API.</p></div></div>
+  <form id="predictForm" class="form">
+    <label>Transaction amount (₹)<input id="amount" type="number" min="0" step="0.01" value="350" required></label>
+    <label>Hour of day<input id="hour" type="number" min="0" max="23" value="14" required></label>
+    <label>Customer age<input id="age" type="number" min="14" max="100" value="35" required></label>
+    <label>Day of month<input id="day" type="number" min="1" max="31" value="15" required></label>
+    <label>Month<input id="month" type="number" min="1" max="12" value="6" required></label>
+    <label>Category code<select id="category"></select></label>
+    <label>State code<select id="state"></select></label>
+    <button class="primary" type="submit">Assess Fraud Risk</button>
+  </form>
+  <div id="result" class="result hidden"></div>
+</section>
+
+<section id="models" class="panel">
+  <div class="section-head"><div><h2>Model performance</h2><p>Held-out test set results from the project's training pipeline.</p></div></div>
+  <div id="modelTable"></div>
+  <div class="grid2">
+    <div class="chartbox"><h3>Metric comparison</h3><img src="/reports/figures/10_metric_comparison.png"></div>
+    <div class="chartbox"><h3>ROC curves</h3><img src="/reports/figures/11_roc_curves.png"></div>
+  </div>
+</section>
+
+<section id="data" class="panel">
+  <div class="section-head"><div><h2>Transaction data</h2><p>Backend-served sample records with optional fraud filtering.</p></div>
+    <label class="check"><input id="fraudOnly" type="checkbox"> Fraud only</label>
+  </div>
+  <div id="dataTable" class="table-wrap"></div>
+</section>
+</main>
+<footer>UPI Shield • Academic Capstone • For research and demonstration only</footer>
+<script src="/app.js"></script>
+<script src="/dash-extras.js"></script>
+</body>
+</html>

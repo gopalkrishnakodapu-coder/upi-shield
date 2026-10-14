@@ -1,0 +1,21 @@
+services:
+  - type: web
+    name: upi-fraud-detection
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn backend.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/health
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.3
+      - key: ADMIN_NAME
+        value: Admin
+      - key: ADMIN_ROLE
+        value: Fraud Analyst · Administrator
+      - key: ADMIN_EMAIL
+        value: admin@upishield.example
+      - key: ADMIN_PHONE
+        value: Not set
+      - key: ADMIN_ORG
+        value: UPI Shield
